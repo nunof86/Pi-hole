@@ -37,6 +37,7 @@
           - apt-transport-https
           - ca-certificates
           - software-properties-common
+          - curl
         state: present
       when: ansible_distribution in ['Ubuntu', 'Debian']
 
