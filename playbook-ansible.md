@@ -43,8 +43,6 @@
 
     - name: Add Docker APT key to trusted.gpg.d
       shell: "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/docker.gpg"
-      args:
-        warn: no
       when: ansible_distribution in ['Ubuntu', 'Debian']
 
     - name: Add Docker APT repository
