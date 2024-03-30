@@ -5,22 +5,31 @@
 1. Replace the <mark style="color:red;">`hosts:`</mark> option to <mark style="color:red;">**localhost**</mark> or other <mark style="color:red;">**host**</mark> of your choice.
 
 ```yaml
+---
+
 - name: Pi-hole Setup
   hosts: localhost
-  become: yes
+  become: true
   any_errors_fatal: true
   max_fail_percentage: 0
-  
+
   tasks:
-    - name: System Update
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+      when: ansible_distribution in ['Ubuntu', 'Debian']
+
+    - name: System update
       apt:
         update_cache: yes
       changed_when: false
+      when: ansible_distribution in ['Ubuntu', 'Debian']
 
-    - name: Dist Upgrade
+    - name: Dist upgrade
       apt:
         upgrade: dist
       register: upgrade_output
+      when: ansible_distribution in ['Ubuntu', 'Debian']
 
     - name: Install required packages
       apt:
@@ -31,15 +40,15 @@
         state: present
       when: ansible_distribution in ['Ubuntu', 'Debian']
 
-    - name: Add Docker APT key
-      apt_key:
-        url: https://download.docker.com/linux/{{ ansible_distribution|lower }}/gpg
-        state: present
+    - name: Add Docker APT key to trusted.gpg.d
+      shell: "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/docker.gpg"
+      args:
+        warn: no
       when: ansible_distribution in ['Ubuntu', 'Debian']
 
     - name: Add Docker APT repository
       apt_repository:
-        repo: deb [arch=amd64] https://download.docker.com/linux/{{ ansible_distribution|lower }} {{ ansible_lsb.codename }} stable
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_lsb.codename }} stable
         state: present
       when: ansible_distribution in ['Ubuntu', 'Debian']
 
